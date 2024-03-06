@@ -1,0 +1,23 @@
+name: Docker
+
+on:
+  push:
+    branches:
+      - development
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Docker build
+        run: |
+          docker build -t myapplication .
+
+      - name: Image check
+        run: |
+          docker images
