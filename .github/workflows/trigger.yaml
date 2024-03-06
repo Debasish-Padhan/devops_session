@@ -1,0 +1,54 @@
+name: Docker
+
+on:
+  push:
+    branches:
+      - development
+      - qa-test
+      - uat
+    tags:
+      - v*
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Environment setup
+        id: env-setup
+        run: |
+          echo "VERSION_NAME=$(git tag -l | cut -c2-)" >> $GITHUB_ENV
+
+      - name: Docker build
+        if:
+          contains('
+            development
+            qa-test
+            uat
+          ', github.ref_name)
+        run: |
+          docker build -t dpadhan/myapplication:${{ github.ref_name }} .
+      
+      - name: Docker build production
+        if: startsWith(github.ref_name, 'v')
+        run: |
+          docker build -t dpadhan/myapplication:${{ env.VERSION_NAME }} .
+
+      - name: Docker login
+        uses: docker/login-action@v3.0.0
+        with:
+          username: dpadhan
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Docker push
+        run: |
+          docker push dpadhan/myapplication:${{ github.ref_name }}
+
+      - name: Docker push production
+        if: startsWith(github.ref_name, 'v')
+        run: |
+          docker push dpadhan/myapplication:${{ env.VERSION_NAME }}
