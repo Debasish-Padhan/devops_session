@@ -45,6 +45,12 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Docker push
+        if:
+          contains('
+            development
+            qa-test
+            uat
+          ', github.ref_name)
         run: |
           docker push dpadhan/myapplication:${{ github.ref_name }}
 
