@@ -16,8 +16,14 @@ jobs:
 
       - name: Docker build
         run: |
-          docker build -t myapplication .
+          docker build -t dpadhan/myapplication:${{ github.ref_name }} .
 
-      - name: Image check
+      - name: Docker login
+        uses: docker/login-action@v3.0.0
+        with:
+          username: dpadhan
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Docker push
         run: |
-          docker images
+          docker push dpadhan/myapplication:${{ github.ref_name }}
